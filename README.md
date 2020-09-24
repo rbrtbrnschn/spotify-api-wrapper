@@ -1,4 +1,4 @@
-# Spotify Api Wrapper
+# Spotify Api Wrapper | Jewel
 Wrapper for spotify webapi to use for custom virtual assistant
 ## TODO
 
