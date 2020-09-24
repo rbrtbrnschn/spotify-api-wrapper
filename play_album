@@ -1,0 +1,25 @@
+#!/bin/bash
+export SRC="$PWD"
+dotenv
+
+RESPONSE=$($SRC/search --album "$@")
+ALBUM_URI=$($SRC/get_uri "$RESPONSE")
+ALBUM_URI=${ALBUM_URI:14:100}
+
+URIS=$(curl -X "GET" "https://api.spotify.com/v1/albums/$ALBUM_URI/tracks?offset=0" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" | python3 "$SRC/_get_album_uris.py")
+
+URIS=( $URIS )
+RAND=$(shuf -i 0-${#URIS[@]} -n 1)
+TRACK_URI=${URIS[$RAND]}
+SHUFFLED_URIS=( $(shuf -e "${URIS[@]}"))
+
+# Clear Queue
+$SRC/clear_q
+
+# Add songs to Queue
+for URI in "${SHUFFLED_URIS[@]}"; do
+	$SRC/add_to_q $URI
+done
+
+$SRC/skip
+$SRC/set_mode --loop

@@ -1,0 +1,21 @@
+#!/bin/bash
+dotenv
+SRC="$PWD"
+IS_ACTIVE=0
+SEQ=10
+
+while getopts "s:" OPTION; do
+	case $OPTION in
+		s)
+			SEQ=$OPTARG
+		;;
+		*)
+			echo "Correct Usage: clear_q [-s]"
+		;;
+	esac
+done
+
+
+for I in seq "$SEQ"; do
+	$PWD/skip
+done

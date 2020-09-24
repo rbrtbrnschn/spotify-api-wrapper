@@ -1,0 +1,39 @@
+#!/bin/bash
+export SRC="$PWD"
+dotenv
+NEEDS_SEARCH=0
+
+while getopts ":-:" OPTION; do
+	case $OPTION in
+		-)
+			case $OPTARG in
+				uri)
+					URI="${@: -1}"
+					NEEDS_SEARCH=1
+				;;
+			esac
+		;;
+		*)
+			echo "Correct Usage"
+			exit 0
+		;;
+	esac
+done
+
+if [ "$NEEDS_SEARCH" -eq 1 ]; then
+	# Add To Queue
+	$SRC/add_to_q "$URI"
+
+	# Skip To Next Song In Queue
+	$SRC/skip_next_in_q
+else
+
+	RESPONSE=$($SRC/search --track "$@")
+	URI=$($SRC/get_uri "$RESPONSE")
+	
+	# Add To Queue
+	$SRC/add_to_q "$URI"
+
+	# Skip To Next Song In Queue
+	$SRC/skip
+fi

@@ -1,0 +1,29 @@
+#!/bin/bash
+dotenv
+SRC="$PWD"
+
+RESPONSE=$($SRC/search --playlist "$@")
+URI=$($SRC/get_uri "$RESPONSE")
+URI=${URI:17:100}
+
+echo $URI >&2
+PLAYLIST=$(curl -X "GET" "https://api.spotify.com/v1/playlists/$URI/tracks?offset=0" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN")
+
+TRACKS=$(echo $PLAYLIST | $SRC/_get_playlist_uris.py)
+
+TRACKS=( $TRACKS )
+RAND=$(shuf -i 0-${#TRACKS[@]} -n 1)
+TRACK_URI=${TRACKS[$RAND]}
+SHUFFLED_URIS=( $(shuf -e "${TRACKS[@]}"))
+
+# Clear Queue
+$SRC/clear_q
+
+# Add Playlist To Queue
+for SHUFFLED_URI in "${SHUFFLED_URIS[@]}"; do
+	$SRC/add_to_q $SHUFFLED_URI
+done
+
+$SRC/skip
+$SRC/set_mode --loop
+

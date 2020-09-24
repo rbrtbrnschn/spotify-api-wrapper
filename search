@@ -1,0 +1,61 @@
+#!/bin/bash
+dotenv 
+TYPE=""
+SONG_NAME="$@"
+QUERY=""
+TEMP=""
+
+while getopts ":-:q:" OPTION; do
+	case $OPTION in
+		-)
+			case $OPTARG in
+				track)
+					TYPE+="$OPTARG "
+					;;
+				album)
+					TYPE+="$OPTARG "
+					;;
+				artist)
+					TYPE+="$OPTARG "
+					;;
+				playlist)
+					TYPE+="$OPTARG "
+					;;
+				show)
+					TYPE+="$OPTARG "
+					;;
+				episode)
+					TYPE+="$OPTARG "
+					;;
+				*)
+					echo "Correct Usage: search [--track] [--album] [--artist] [--playlist] [--show] [--episode] query"
+					exit 1
+					;;
+			esac
+			;;
+		*)
+			echo "Correct Usage: "
+			exit 1
+			;;
+	esac
+done
+
+# Get Type
+export TYPE="$TYPE"
+TYPE=( $TYPE )
+if [ "$TYPE" == "" ]; then TYPE="track"; fi
+if [ "${#TYPE[@]}" -gt 1 ]; then
+	for TYP in ${TYPE[@]}; do
+		TEMP+="$TYP%2c"
+	done
+	TYPE="${TEMP:0:-3}"
+fi
+
+# Get Query
+for PARAM in "$@"; do
+	if [ ! "${PARAM:0:1}" == "-" ]; then
+		QUERY+="$PARAM%20"
+	fi
+done
+
+curl -X "GET" "https://api.spotify.com/v1/search?q=$QUERY&type=$TYPE&market=DE&limit=10" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN"

@@ -1,0 +1,26 @@
+#!/bin/bash
+dotenv
+STATE="context"
+while getopts ":-:" OPTION; do
+	case $OPTION in
+		-)
+			case $OPTARG in
+				repeat)
+					STATE="track"
+				;;
+				loop)
+					STATE="context"
+				;;
+				off)
+					STATE="off"
+				;;
+				*)
+					echo "Correct Usage:	set_mod [--repeat] [--loop] [--off]"
+					exit 1
+				;;
+			esac
+	esac
+done
+
+
+curl -X "PUT" "https://api.spotify.com/v1/me/player/repeat?state=$STATE" -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN"

@@ -1,0 +1,7 @@
+#!/bin/bash
+SRC="$PWD"
+dotenv
+IN="$@"
+
+URI=$(echo ${IN[@]} | python3 "$SRC/_get_uri.py")
+echo $URI
